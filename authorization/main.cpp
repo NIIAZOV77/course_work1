@@ -30,22 +30,69 @@ struct Abonent
 int num_str(string address, int n);
 void making_user_array(User* user_data, int num_str);
 int get_role(User *data, int num_str);
-void showing(User* data, int num_str);
+
+class Administrator
+{
+private:
+	
+	fstream user_data;
+	fstream abonent_data;
+	
+public:
+	Administrator()
+	{
+		this->user_data.open("C:\\Users\\umedz\\универ\\программирование\\курсовые\\курсовая_1\\user_data.txt");
+		this->abonent_data.open("C:\\Users\\umedz\\универ\\программирование\\курсовые\\курсовая_1\\abonent_data.txt");
+	}
+	void showing(string idx, int columns)
+	{
+		string value;
+		if (idx == "user") {
+			while (!user_data.eof())
+			{
+				for (int i = 0; i < columns; i++)
+				{
+					user_data >> value;
+					cout << value << '\t';
+				}
+				cout << endl;
+			}
+			cout << endl;
+			user_data.seekg(0);
+		}
+		else if (idx == "abonent")
+		{
+			while (!abonent_data.eof())
+			{
+				for (int i = 0; i < columns; i++)
+				{
+					abonent_data >> value;
+					cout << value << '\t';
+				}
+				cout << endl;
+			}
+			cout << endl;
+			abonent_data.seekg(0);
+		}
+	}
+};
 
 
 int main()
 {
 	SetConsoleCP(1251);
 	SetConsoleOutputCP(1251);
-	int user_num_str = num_str("C:\\Users\\umedz\\универ\\программирование\\курсовые\\курсовая_1\\user_data.txt", 3);
+	/*int user_num_str = num_str("C:\\Users\\umedz\\универ\\программирование\\курсовые\\курсовая_1\\user_data.txt", 3);
 	int abonent_num_str = num_str("C:\\Users\\umedz\\универ\\программирование\\курсовые\\курсовая_1\\abonent_data.txt", 8);
 	User *user_data = new User[user_num_str];
 	Abonent* abonent_data = new Abonent[abonent_num_str];
 
 	making_user_array(user_data, user_num_str);
 	int role = get_role(user_data, user_num_str);
-	cout << role << endl;
-	showing(user_data, user_num_str);
+	cout << role << endl;*/
+	Administrator add;
+	add.showing("user", 3);
+	add.showing("abonent", 8);
 }
 
 int num_str(string address, int n)
@@ -113,15 +160,6 @@ int get_role(User* data, int num_str)
 	}
 
 	return role;
-}
-
-void showing(User *data, int num_str)
-{
-	for (int j = 0; j < num_str;j++)
-	{
-		cout << data[j].login << '\t' << data[j].password << '\t' << data[j].role << '\t';
-		cout << endl;
-	}
 }
 
 
