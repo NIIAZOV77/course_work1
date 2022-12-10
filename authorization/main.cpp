@@ -12,14 +12,13 @@ struct user
 	string role;
 };
 
-
 struct abonent
 {
 	string number;         //Номер абонента;
 	string surname;        //Фамилия;
 	string name;           //Имя;
 	string father_name;    //Отчество;
-	string type_of_call;   //Тип вызова (0-входящий, 1-исходящий)
+	string type_of_call;   //Тип вызова
 	string number_x;       //Номер исходящего или входящего вызова
 	string date_x;         //Дата звонка
 	string time_x;         //Время звонка
@@ -35,15 +34,20 @@ void making_abonent_array(abonent* abonent_data, int num_str);
 class User
 {
 public:
-	void show_abonents(abonent* data, int num_str) //Отображение пользователей
+	void show_abonents(string address) //Отображение абонентов
 	{
-		string value;
-		for (int i = 0; i < num_str; i++)
+		fstream f(address);
+		string val;
+		while (!f.eof())
 		{
-			cout << data[i].number << '\t' << data[i].surname << '\t' << data[i].name << '\t' << data[i].father_name << '\t' << data[i].type_of_call << '\t'
-				<< data[i].number_x << '\t' << data[i].date_x << '\t' << data[i].time_x << '\t' << data[i].call_dur << '\t' << data[i].rate << endl;
+			for (int i = 0; i < 10; i++)
+			{
+				f >> val;
+				cout << val << '\t';
+			}
+			cout << endl;
 		}
-		cout << endl;
+		f.close();
 	}
 
 	void finding(abonent* data, int num_str, int key)//Поиск 
@@ -128,7 +132,7 @@ public:
 		}
 	}
 
-	void sort(abonent* data, int num_str, int key) //Сортировка данных
+	void sort(abonent* data, string address, int num_str, int key) //Сортировка данных
 	{
 		abonent *data1 = new abonent[num_str];
 		data1 = data;
@@ -149,7 +153,7 @@ public:
 					}
 				}
 			}
-			show_abonents(data1, num_str);
+			show_abonents(address);
 			break;
 		}
 		
@@ -167,7 +171,7 @@ public:
 					}
 				}
 			}
-			show_abonents(data1, num_str);
+			show_abonents(address);
 			break;
 		}
 		case 3: //Сортировка по дате
@@ -184,10 +188,113 @@ public:
 					}
 				}
 			}
-			show_abonents(data1, num_str);
+			show_abonents(address);
 			break;
 		}
 		}
+	}
+
+	/*void indiv_task(abonent* data, int num_str)
+	{
+		string begin_date;
+		string end_date;
+		float time_ischod;
+		float time_vhod ;
+		float sum ;
+		cout << "Введите начальную дату в формате гггг:мм:дд: ";
+		cin >> begin_date;
+		cout << "Введите конечную дату в формате гггг:мм:дд: ";
+		cin >> end_date;
+		cout << endl;
+		string* arr = new string[num_str];
+		int j;
+		for (int i = 0; i < num_str-1; i++)
+		{
+			for (j = 0; j < i; j++)
+				if (data[i].number == data[j].number) break;
+			if (i == j) { arr[i] = data[i].number; }
+
+		}
+		for (int i = 0; i < num_str; i++)
+		{
+			cout << "Вывод по абоненту " << data[i].surname << ' ' << data[i].name << ' ' << data[i].father_name << endl << endl;
+			for (int j = 0; j < num_str; j++)
+			{
+				if (data[j].number == arr[i])
+				{
+					if (data[j].date_x > begin_date && data[j].date_x < end_date)
+					{
+						cout << data[i].number << '\t' << data[i].surname << '\t' << data[i].name << '\t' << data[i].father_name << '\t' << data[i].type_of_call << '\t'
+							<< data[i].number_x << '\t' << data[i].date_x << '\t' << data[i].time_x << '\t' << data[i].call_dur << '\t' << data[i].rate << endl;
+					}
+				}
+			}
+		}
+
+	}*/
+};
+
+class Administrator: public User
+{
+public:
+	void show_users(string address) //Отображение пользователей
+	{
+		fstream f(address);
+		string val;
+		while (!f.eof())
+		{
+			for (int i = 0; i < 3; i++)
+			{
+				f >> val;
+				cout << val << '\t';
+			}
+			cout << endl;
+		}
+		f.close();
+	}
+
+	void add_new_user(string address) //Добавление нового пользователя, так же нужно обновлять переменную количество строк
+	{
+		fstream f(address, ios::app);
+		user Us;
+		cout << "Введите логин нового пользователя: ";
+		cin >> Us.login;
+		cout << "Введите пароль нового пользователя: ";
+		cin >> Us.password;
+		cout << "Введите роль нового пользователя: ";
+		cin >> Us.role;
+		f << endl << Us.login << ' ' << Us.password << ' ' << Us.role;
+		f.close();
+	}
+
+	void add_new_abonent(string address) //Добавление новой записи абонента, так же нужно обновлять переменную количество строк
+	{
+		fstream f(address, ios::app);
+		abonent Ab;
+		cout << "Введите номер абонента: ";
+		cin >> Ab.number;
+		cout << "Введите фамилию абонента: ";
+		cin >> Ab.surname;
+		cout << "Введите имя абонента: ";
+		cin >> Ab.name;
+		cout << "Введите отчество абонента: ";
+		cin >> Ab.father_name;
+		cout << "Введите тип вызова: ";
+		cin >> Ab.type_of_call;
+		cout << "Введите номер исходящего или входящего звонка: ";
+		cin >> Ab.number_x;
+		cout << "Введите дату звонка: ";
+		cin >> Ab.date_x;
+		cout << "Введите время звонка: ";
+		cin >> Ab.time_x;
+		cout << "Введите продолжительность разговора: ";
+		cin >> Ab.call_dur;
+		cout << "Введите тариф одной минуты: ";
+		cin >> Ab.rate;
+
+		f << endl << Ab.number << ' ' << Ab.surname << ' ' << Ab.name << ' ' << Ab.father_name << ' ' << Ab.type_of_call << ' '
+			<< Ab.number_x << ' ' << Ab.date_x << ' ' << Ab.time_x << ' ' << Ab.call_dur << ' ' << Ab.rate;
+		f.close();
 	}
 };
 
@@ -196,21 +303,20 @@ int main()
 {
 	SetConsoleCP(1251);
 	SetConsoleOutputCP(1251);
-	int user_num_str = num_str("C:\\Users\\umedz\\универ\\программирование\\курсовые\\курсовая_1\\user_data.txt", 3);
-	int abonent_num_str = num_str("C:\\Users\\umedz\\универ\\программирование\\курсовые\\курсовая_1\\abonent_data.txt", 8);
+	string user_address = "C:\\Users\\umedz\\универ\\программирование\\курсовые\\курсовая_1\\user_data.txt";
+	string abonent_address = "C:\\Users\\umedz\\универ\\программирование\\курсовые\\курсовая_1\\abonent_data.txt";
+	int user_num_str = num_str(user_address, 3);
+	int abonent_num_str = num_str(abonent_address, 8);
 	user *user_data = new user[user_num_str];
 	abonent* abonent_data = new abonent[abonent_num_str];
-
+	
 	making_user_array(user_data, user_num_str);
 	making_abonent_array(abonent_data, abonent_num_str);
 	int role = get_role(user_data, user_num_str);
+	
 
+	Administrator add;
 	
-	
-	User add;
-	//add.show_abonents(abonent_data, abonent_num_str);
-	//add.finding(abonent_data, abonent_num_str, 3);
-	//add.sort(abonent_data, abonent_num_str, 3);
 }
 
 int num_str(string address, int n)
@@ -219,11 +325,13 @@ int num_str(string address, int n)
 	int elements = 0;
 	string value0;
 	data >> value0;
+	elements++;
 	while (!data.eof())
 	{
 		elements++;
 		data >> value0;
 	}
+	
 	data.close();
 	
 	int num_str = elements / n;
@@ -235,7 +343,7 @@ void making_user_array(user* user_data, int num_str)
 	
 	string value1;
 	ifstream data("C:\\Users\\umedz\\универ\\программирование\\курсовые\\курсовая_1\\user_data.txt");
-	while (data.good())
+	while (!data.eof())
 	{
 		data >> value1;
 		for (int i = 0; i < num_str; i++)
@@ -251,7 +359,7 @@ void making_user_array(user* user_data, int num_str)
 
 				data >> value1;
 
-			}
+			}			
 		}
 
 	}
@@ -262,7 +370,7 @@ void making_abonent_array(abonent* abonent_data, int num_str)
 {
 	string value;
 	ifstream data("C:\\Users\\umedz\\универ\\программирование\\курсовые\\курсовая_1\\abonent_data.txt");
-	while (data.good())
+	while (!data.eof())
 	{
 		data >> value;
 		for (int i = 0; i < num_str; i++)
@@ -314,5 +422,3 @@ int get_role(user* data, int num_str)
 
 	return role;
 }
-
-
