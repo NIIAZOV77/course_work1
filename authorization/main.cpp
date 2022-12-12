@@ -2,6 +2,7 @@
 #include <fstream>
 #include <Windows.h>
 #include <string>
+#include <algorithm>
 
 using namespace std;
 
@@ -43,7 +44,7 @@ public:
 			for (int i = 0; i < 10; i++)
 			{
 				f >> val;
-				cout << val << '\t';
+				cout << val << "\t\t";
 			}
 			cout << endl;
 		}
@@ -194,44 +195,71 @@ public:
 		}
 	}
 
-	/*void indiv_task(abonent* data, int num_str)
+	void indiv_task(abonent* data, int num_str)
 	{
 		string begin_date;
 		string end_date;
-		float time_ischod;
-		float time_vhod ;
-		float sum ;
+		int time_ischod;
+		int time_vhod;
+		int sum;
 		cout << "Введите начальную дату в формате гггг:мм:дд: ";
 		cin >> begin_date;
 		cout << "Введите конечную дату в формате гггг:мм:дд: ";
 		cin >> end_date;
 		cout << endl;
-		string* arr = new string[num_str];
-		int j;
-		for (int i = 0; i < num_str-1; i++)
-		{
-			for (j = 0; j < i; j++)
-				if (data[i].number == data[j].number) break;
-			if (i == j) { arr[i] = data[i].number; }
-
-		}
+		bool not_u = false;
+		int count = 0;
+		string* uniq_arr = new string[num_str];
 		for (int i = 0; i < num_str; i++)
 		{
-			cout << "Вывод по абоненту " << data[i].surname << ' ' << data[i].name << ' ' << data[i].father_name << endl << endl;
-			for (int j = 0; j < num_str; j++)
+			bool not_u = false;
+			for (int j = 0; j < i; j++)
 			{
-				if (data[j].number == arr[i])
+				if (uniq_arr[j] == data[i].number)
 				{
-					if (data[j].date_x > begin_date && data[j].date_x < end_date)
-					{
-						cout << data[i].number << '\t' << data[i].surname << '\t' << data[i].name << '\t' << data[i].father_name << '\t' << data[i].type_of_call << '\t'
-							<< data[i].number_x << '\t' << data[i].date_x << '\t' << data[i].time_x << '\t' << data[i].call_dur << '\t' << data[i].rate << endl;
-					}
+					not_u = true;
+					break;
 				}
 			}
+			if (not_u == true)
+				continue;
+			uniq_arr[i] = data[i].number;
+			count++;	
 		}
 
-	}*/
+		for (int i = 0; i < count; i++)
+		{
+			time_ischod = 0;
+			sum = 0;
+			time_vhod = 0;
+			cout << "Вывод по абоненту: " << uniq_arr[i] << endl;
+			for (int j = 0; j < num_str; j++)
+			{
+				if (data[j].number == uniq_arr[i] && data[j].date_x > begin_date && data[j].date_x < end_date)
+				{
+					cout << data[j].number << '\t' << data[j].surname << '\t' << data[j].name << '\t' << data[j].father_name << '\t' << data[j].type_of_call
+						<< '\t' << data[j].number_x << '\t' << data[j].date_x << '\t' << data[j].time_x << '\t' << data[j].call_dur << '\t' << data[j].rate << endl;
+					string str1 = data[j].call_dur;
+					replace(str1.begin(), str1.end(), ':', '.');
+					int min = stoi(str1);
+					float sec = stof(str1) - stoi(str1);
+					int total_sec = round((min * 60 + sec * 100) * 10) / 10;
+					int cost = stoi(string(1, data[j].rate[0])) * min;
+					if (data[j].type_of_call == "исходящий")
+						time_ischod += total_sec;
+					if (data[j].type_of_call == "входящий")
+						time_vhod += total_sec;
+					sum += cost;
+				}
+			}
+			string isch, vh;
+			time_ischod % 60 > 10 ? isch = to_string(time_ischod / 60) + ':' + to_string(time_ischod % 60) : isch = to_string(time_ischod / 60) + ":0" + to_string(time_ischod % 60);
+			time_vhod % 60 > 10 ? vh = to_string(time_vhod / 60) + ':' + to_string(time_vhod % 60) : vh = to_string(time_vhod / 60) + ":0" + to_string(time_vhod % 60);
+			cout << "Общее время исходящих звонков: " << isch << endl << "Общее время входящих звонков: " << vh << endl << "Общая сумма потраченная на исходящие звонки: " << sum << endl;
+			cout << endl;
+		}
+		
+	}
 };
 
 class Administrator: public User
@@ -253,7 +281,7 @@ public:
 		f.close();
 	}
 
-	void add_new_user(string address) //Добавление нового пользователя, так же нужно обновлять переменную количество строк
+	void add_new_user(string address) //Добавление нового пользователя, так же нужно обновлять переменную количество строк и массив
 	{
 		fstream f(address, ios::app);
 		user Us;
@@ -267,7 +295,7 @@ public:
 		f.close();
 	}
 
-	void add_new_abonent(string address) //Добавление новой записи абонента, так же нужно обновлять переменную количество строк
+	void add_new_abonent(string address) //Добавление новой записи абонента, так же нужно обновлять переменную количество строк и массив
 	{
 		fstream f(address, ios::app);
 		abonent Ab;
@@ -296,6 +324,168 @@ public:
 			<< Ab.number_x << ' ' << Ab.date_x << ' ' << Ab.time_x << ' ' << Ab.call_dur << ' ' << Ab.rate;
 		f.close();
 	}
+
+	void remove_user(string address, int num_str) //Функция для удаления пользователя, нужно обновлять данные о количестве строк и массив
+	{
+		ifstream f(address);
+		ofstream t("C:\\Users\\umedz\\универ\\программирование\\курсовые\\курсовая_1\\text.txt", ios::trunc);
+		cout << "Введите данные для удаления\n";
+		cout << "Введите логин, пароль и роль через пробел: ";
+		string values;
+		getline(cin, values);
+		string f_values;
+		int count = 0;
+		while (!f.eof())
+		{
+			getline(f, f_values);
+			if (values == f_values)
+				continue;
+			t << f_values;
+			if (count < num_str - 2)
+				t << '\n';
+			count++;
+		}
+		t.close();
+		f.close();
+		ifstream t1("C:\\Users\\umedz\\универ\\программирование\\курсовые\\курсовая_1\\text.txt");
+		ofstream f1(address, ios::trunc);
+		string t_values;
+		count = 0;
+		while (!t1.eof())
+		{
+			getline(t1, t_values);
+			f1 << t_values;
+			if (count < num_str - 2)
+				f1 << '\n';
+			count++;
+		}
+		t1.close();
+		f1.close();
+	}
+
+	void remove_abonent(string address, int num_str) //Функция для удаления разговара, нужно обновлять данные о количестве строк и массив
+	{
+		ifstream f(address);
+		ofstream t("C:\\Users\\umedz\\универ\\программирование\\курсовые\\курсовая_1\\text.txt", ios::trunc);
+		cout << "Введите данные для удаления\n";
+		cout << "Введите все данные разговора через пробел\n";
+		string values;
+		getline(cin, values);
+		string f_values;
+		int count = 0;
+		while (!f.eof())
+		{
+			getline(f, f_values);
+			if (values == f_values)
+				continue;
+			t << f_values;
+			if (count < num_str - 3)
+				t << '\n';
+			count++;
+		}
+		t.close();
+		f.close();
+		ifstream t1("C:\\Users\\umedz\\универ\\программирование\\курсовые\\курсовая_1\\text.txt");
+		ofstream f1(address, ios::trunc);
+		string t_values;
+		count = 0;
+		while (!t1.eof())
+		{
+			getline(t1, t_values);
+			f1 << t_values;
+			if (count < num_str - 3)
+				f1 << '\n';
+			count++;
+		}
+		t1.close();
+		f1.close();
+	}
+
+	void edit_user(string address, int num_str) //Функция для удаления разговара, нужно обновлять данные о количестве строк и массив
+	{
+		ifstream f(address);
+		ofstream t("C:\\Users\\umedz\\универ\\программирование\\курсовые\\курсовая_1\\text.txt", ios::trunc);
+		string values, new_values;
+		cout << "Введите данные которые вы хотите изменить\n";
+		cout << "Введите логин, пароль и роль через пробел: ";
+		getline(cin, values);
+		cout << "Введите измененные данные\n";
+		cout << "Введите логин, пароль и роль через пробел: ";
+		getline(cin, new_values);
+		string f_values;
+		int count = 0;
+		while (!f.eof())
+		{
+			getline(f, f_values);
+			if (values == f_values)
+			{
+				f_values = new_values;
+			}
+			t << f_values;
+			if (count < num_str - 1)
+				t << '\n';
+			count++;
+		}
+		t.close();
+		f.close();
+		ifstream t1("C:\\Users\\umedz\\универ\\программирование\\курсовые\\курсовая_1\\text.txt");
+		ofstream f1(address, ios::trunc);
+		string t_values;
+		count = 0;
+		while (!t1.eof())
+		{
+			getline(t1, t_values);
+			f1 << t_values;
+			if (count < num_str - 1)
+				f1 << '\n';
+			count++;
+		}
+		t1.close();
+		f1.close();
+	}
+
+	void edit_abonent(string address, int num_str)
+	{
+		ifstream f(address);
+		ofstream t("C:\\Users\\umedz\\универ\\программирование\\курсовые\\курсовая_1\\text.txt", ios::trunc);
+		string values, new_values;
+		cout << "Введите данные которые вы хотите изменить\n";
+		cout << "Введите все данные разговора через пробел\n";
+		getline(cin, values);
+		cout << "Введите измененные данные\n";
+		cout << "Введите все данные разговора через пробел\n";
+		getline(cin, new_values);
+		string f_values;
+		int count = 0;
+		while (!f.eof())
+		{
+			getline(f, f_values);
+			if (values == f_values)
+			{
+				f_values = new_values;
+			}
+			t << f_values;
+			if (count < num_str )
+				t << '\n';
+			count++;
+		}
+		t.close();
+		f.close();
+		ifstream t1("C:\\Users\\umedz\\универ\\программирование\\курсовые\\курсовая_1\\text.txt");
+		ofstream f1(address, ios::trunc);
+		string t_values;
+		count = 0;
+		while (!t1.eof())
+		{
+			getline(t1, t_values);
+			f1 << t_values;
+			if (count < num_str)
+				f1 << '\n';
+			count++;
+		}
+		t1.close();
+		f1.close();
+	}
 };
 
 
@@ -306,17 +496,17 @@ int main()
 	string user_address = "C:\\Users\\umedz\\универ\\программирование\\курсовые\\курсовая_1\\user_data.txt";
 	string abonent_address = "C:\\Users\\umedz\\универ\\программирование\\курсовые\\курсовая_1\\abonent_data.txt";
 	int user_num_str = num_str(user_address, 3);
-	int abonent_num_str = num_str(abonent_address, 8);
-	user *user_data = new user[user_num_str];
+	int abonent_num_str = num_str(abonent_address, 10);
+	user* user_data = new user[user_num_str];
 	abonent* abonent_data = new abonent[abonent_num_str];
 	
 	making_user_array(user_data, user_num_str);
 	making_abonent_array(abonent_data, abonent_num_str);
 	int role = get_role(user_data, user_num_str);
-	
-
-	Administrator add;
-	
+	User add;
+	add.indiv_task(abonent_data, abonent_num_str);
+	delete []user_data;
+	delete []abonent_data;
 }
 
 int num_str(string address, int n)
@@ -331,11 +521,11 @@ int num_str(string address, int n)
 		elements++;
 		data >> value0;
 	}
-	
 	data.close();
 	
 	int num_str = elements / n;
 	return num_str;
+	
 }
 
 void making_user_array(user* user_data, int num_str)
@@ -397,6 +587,7 @@ void making_abonent_array(abonent* abonent_data, int num_str)
 		}
 
 	}
+	
 	data.close();
 }
 
@@ -404,9 +595,9 @@ int get_role(user* data, int num_str)
 {
 	string log, pass;
 	int role;
-	cout << "Enter your login: ";
+	cout << "Введите ваш логин: ";
 	getline(cin, log);
-	cout << "Enter your password: ";
+	cout << "Введите ваш пароль: ";
 	getline(cin, pass);
 
 	for (int i = 0; i < num_str; i++)
