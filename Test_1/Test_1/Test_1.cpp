@@ -12,8 +12,16 @@ int main()
 {
 	SetConsoleCP(1251);
 	SetConsoleOutputCP(1251);
-	int time_ischod = 268;
-	string isch;
-	time_ischod % 60 > 10 ? isch = to_string(time_ischod / 60) + ':' + to_string(time_ischod % 60) : isch = to_string(time_ischod / 60) + ":0" + to_string(time_ischod % 60);
-	cout << isch;
+	string a, b, c, x;
+	cin >> a;
+	cin >> b;
+	cin >> c;
+	x = a + ' ' + b + ' ' + c;
+	cout << x << endl;
+	cin >> a;
+	cin >> b;
+	cin >> c;
+	x = a + ' ' + b + ' ' + c;
+	cout << x;
+
 }
